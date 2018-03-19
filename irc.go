@@ -40,7 +40,12 @@ var ErrDisconnected = errors.New("Disconnect Called")
 
 // Read data from a connection. To be used as a goroutine.
 func (irc *Connection) readLoop() {
-	defer irc.Done()
+	defer func() {
+		if x := recover(); x != nil {
+			fmt.Printf("Runtime panic: %v \n", x)
+		}
+		defer irc.Done()
+	}()
 	br := bufio.NewReaderSize(irc.socket, 512)
 
 	errChan := irc.ErrorChan()
@@ -155,7 +160,12 @@ func parseToEvent(msg string) (*Event, error) {
 
 // Loop to write to a connection. To be used as a goroutine.
 func (irc *Connection) writeLoop() {
-	defer irc.Done()
+	defer func() {
+		if x := recover(); x != nil {
+			fmt.Printf("Runtime panic: %v \n", x)
+		}
+		defer irc.Done()
+	}()
 	errChan := irc.ErrorChan()
 	for {
 		select {
@@ -190,7 +200,12 @@ func (irc *Connection) writeLoop() {
 // Pings the server if we have not received any messages for 5 minutes
 // to keep the connection alive. To be used as a goroutine.
 func (irc *Connection) pingLoop() {
-	defer irc.Done()
+	defer func() {
+		if x := recover(); x != nil {
+			fmt.Printf("Runtime panic: %v \n", x)
+		}
+		defer irc.Done()
+	}()
 	ticker := time.NewTicker(1 * time.Minute) // Tick every minute for monitoring
 	ticker2 := time.NewTicker(irc.PingFreq)   // Tick at the ping frequency.
 	for {
